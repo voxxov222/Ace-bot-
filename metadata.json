@@ -1,0 +1,6 @@
+{
+  "name": "Ace Force Controller",
+  "description": "Remote input mapping, performance monitoring, and AI autopilot controller for Ace Force Joint Combat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
