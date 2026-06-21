@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Server, Smartphone, Activity, Layers, ExternalLink, Minimize2, Maximize2, ShieldAlert, Wifi, Info, Swords, CircleDot, Terminal } from 'lucide-react';
+import { Target, Server, Smartphone, Activity, Layers, ExternalLink, Minimize2, Maximize2, ShieldAlert, Wifi, Info, Swords, CircleDot, Terminal, Package } from 'lucide-react';
 import { PerformanceMonitor } from './components/PerformanceMonitor';
 import { AutopilotControls } from './components/AutopilotControls';
 import { InputMapper } from './components/InputMapper';
 import { PilotCredentials } from './components/PilotCredentials';
 import { AutomationConsole } from './components/AutomationConsole';
 import { CompanionOverlay } from './components/CompanionOverlay';
+import { ApkInjector } from './components/ApkInjector';
 import { AIState, AIStrategy } from './types';
 import { cn } from './lib/utils';
 
@@ -13,8 +14,8 @@ export default function App() {
   const isOverlayParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'overlay';
   const [viewMode, setViewMode] = useState<'dashboard' | 'hud-overlay'>(isOverlayParam ? 'hud-overlay' : 'dashboard');
   const [connected, setConnected] = useState(true);
-  const [activeTab, setActiveTab] = useState<'mapping' | 'autopilot' | 'stats' | 'automation' | 'overlay'>('overlay');
-  const [centerTab, setCenterTab] = useState<'mapping' | 'automation'>('mapping');
+  const [activeTab, setActiveTab] = useState<'mapping' | 'autopilot' | 'stats' | 'automation' | 'overlay' | 'injector'>('overlay');
+  const [centerTab, setCenterTab] = useState<'mapping' | 'automation' | 'injector'>('mapping');
   const [rightTab, setRightTab] = useState<'autopilot' | 'overlay'>('overlay');
   const [aiState, setAiState] = useState<AIState>({
     isActive: false,
@@ -104,7 +105,7 @@ export default function App() {
         </div>
 
         {/* Quick Tabs for compact view */}
-        <div className="grid grid-cols-5 gap-1 mb-3 bg-neutral-900/80 p-1 rounded-lg border border-neutral-800/60">
+        <div className="grid grid-cols-6 gap-1 mb-3 bg-neutral-900/80 p-1 rounded-lg border border-neutral-800/60">
           <button
             onClick={() => setActiveTab('mapping')}
             className={cn(
@@ -131,6 +132,15 @@ export default function App() {
             )}
           >
             Scripts
+          </button>
+          <button
+            onClick={() => setActiveTab('injector')}
+            className={cn(
+              "py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded transition-all",
+              activeTab === 'injector' ? "bg-orange-500/20 text-orange-400 border border-orange-500/30" : "text-gray-500 hover:text-gray-300"
+            )}
+          >
+            Inject
           </button>
           <button
             onClick={() => setActiveTab('autopilot')}
@@ -171,6 +181,12 @@ export default function App() {
           {activeTab === 'automation' && (
             <div className="flex-1 min-h-0 flex flex-col animate-in fade-in duration-200">
               <AutomationConsole />
+            </div>
+          )}
+          
+          {activeTab === 'injector' && (
+            <div className="flex-1 min-h-0 flex flex-col animate-in fade-in duration-200">
+              <ApkInjector />
             </div>
           )}
 
@@ -327,10 +343,20 @@ export default function App() {
                 <Terminal className="w-3.5 h-3.5" />
                 <span>Scripting & ADB</span>
               </button>
+              <button
+                onClick={() => setCenterTab('injector')}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider transition-all flex items-center space-x-1.5",
+                  centerTab === 'injector' ? "bg-amber-500 text-neutral-950 font-bold" : "text-gray-500 hover:text-gray-300"
+                )}
+              >
+                <Package className="w-3.5 h-3.5" />
+                <span>APK Injector</span>
+              </button>
             </div>
 
             <div className="flex-1 relative min-h-[450px]">
-              {!connected && (
+              {!connected && centerTab !== 'injector' && (
                 <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-sm rounded-xl flex items-center justify-center border border-gray-800">
                   <div className="text-center p-6 max-w-md">
                     <Server className="w-12 h-12 text-amber-500 mb-4 mx-auto animate-pulse" />
@@ -341,7 +367,7 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {centerTab === 'mapping' ? <InputMapper /> : <AutomationConsole />}
+              {centerTab === 'mapping' ? <InputMapper /> : centerTab === 'automation' ? <AutomationConsole /> : <ApkInjector />}
             </div>
           </div>
 
