@@ -132,7 +132,7 @@ export function CompanionOverlay({ activeSerial = 'Android_WSG_AF', isConnected 
     addLog(`▶ ${macro.key} → ${macro.label}`);
 
     try {
-      const r = await hotkeys.fire(macro.key, macro.steps, activeSerial);
+      const r = (await hotkeys.fire(macro.key, macro.steps, activeSerial)) as any;
       if (r.ok) {
         addLog(`✓ ${macro.label} done`);
       } else {
@@ -181,7 +181,7 @@ export function CompanionOverlay({ activeSerial = 'Android_WSG_AF', isConnected 
         setScrcpyRunning(false);
         addLog('📺 Screen mirror stopped');
       } else {
-        const r = await scrcpy.start({ serial: activeSerial, ...scrcpyOpts });
+        const r = (await scrcpy.start({ serial: activeSerial, ...scrcpyOpts })) as any;
         if (r.ok) {
           setScrcpyRunning(true);
           addLog(`📺 Mirror started (PID ${r.pid}) — ${scrcpyOpts.noControl ? 'phone-only control' : 'PC+phone control'}`);
