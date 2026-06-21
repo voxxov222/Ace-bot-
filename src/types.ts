@@ -25,3 +25,22 @@ export interface InputMap {
   label: string;
   size: number;
 }
+
+export interface MacroStep {
+  type: 'tap' | 'swipe';
+  x: number;
+  y: number;
+  x2?: number;
+  y2?: number;
+  duration?: number;
+  delay: number;
+}
+
+export interface HotkeyMacro {
+  id: string;
+  key: string;
+  label: string;
+  color: string;
+  description: string;
+  steps: MacroStep[];
+}

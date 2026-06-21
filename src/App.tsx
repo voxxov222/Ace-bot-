@@ -5,6 +5,7 @@ import { AutopilotControls } from './components/AutopilotControls';
 import { InputMapper } from './components/InputMapper';
 import { PilotCredentials } from './components/PilotCredentials';
 import { AutomationConsole } from './components/AutomationConsole';
+import { CompanionOverlay } from './components/CompanionOverlay';
 import { AIState, AIStrategy } from './types';
 import { cn } from './lib/utils';
 
@@ -12,8 +13,9 @@ export default function App() {
   const isOverlayParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'overlay';
   const [viewMode, setViewMode] = useState<'dashboard' | 'hud-overlay'>(isOverlayParam ? 'hud-overlay' : 'dashboard');
   const [connected, setConnected] = useState(true);
-  const [activeTab, setActiveTab] = useState<'mapping' | 'autopilot' | 'stats' | 'automation'>('mapping');
+  const [activeTab, setActiveTab] = useState<'mapping' | 'autopilot' | 'stats' | 'automation' | 'overlay'>('overlay');
   const [centerTab, setCenterTab] = useState<'mapping' | 'automation'>('mapping');
+  const [rightTab, setRightTab] = useState<'autopilot' | 'overlay'>('overlay');
   const [aiState, setAiState] = useState<AIState>({
     isActive: false,
     strategy: 'balanced',
@@ -102,7 +104,7 @@ export default function App() {
         </div>
 
         {/* Quick Tabs for compact view */}
-        <div className="grid grid-cols-4 gap-1 mb-3 bg-neutral-900/80 p-1 rounded-lg border border-neutral-800/60">
+        <div className="grid grid-cols-5 gap-1 mb-3 bg-neutral-900/80 p-1 rounded-lg border border-neutral-800/60">
           <button
             onClick={() => setActiveTab('mapping')}
             className={cn(
@@ -110,7 +112,16 @@ export default function App() {
               activeTab === 'mapping' ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-gray-500 hover:text-gray-300"
             )}
           >
-            Mapping
+            Map
+          </button>
+          <button
+            onClick={() => setActiveTab('overlay')}
+            className={cn(
+              "py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded transition-all",
+              activeTab === 'overlay' ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "text-gray-500 hover:text-gray-300"
+            )}
+          >
+            Macros
           </button>
           <button
             onClick={() => setActiveTab('automation')}
@@ -119,7 +130,7 @@ export default function App() {
               activeTab === 'automation' ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "text-gray-500 hover:text-gray-300"
             )}
           >
-            A-Scripts
+            Scripts
           </button>
           <button
             onClick={() => setActiveTab('autopilot')}
@@ -128,7 +139,7 @@ export default function App() {
               activeTab === 'autopilot' ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" : "text-gray-500 hover:text-gray-300"
             )}
           >
-            Autopilot
+            AI
           </button>
           <button
             onClick={() => setActiveTab('stats')}
@@ -148,6 +159,12 @@ export default function App() {
               <div className="flex-1 relative rounded-lg overflow-hidden border border-neutral-800">
                 <InputMapper />
               </div>
+            </div>
+          )}
+
+          {activeTab === 'overlay' && (
+            <div className="flex-1 min-h-0 flex flex-col animate-in fade-in duration-200">
+              <CompanionOverlay isConnected={connected} />
             </div>
           )}
 
@@ -328,13 +345,44 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Column: AI Autopilot */}
-          <div className="col-span-1 lg:col-span-3">
-            <AutopilotControls 
-              state={aiState} 
-              onToggle={toggleAI}
-              onStrategyChange={(s) => setAiState(prev => ({ ...prev, strategy: s }))}
-            />
+          {/* Right Column: AI Autopilot & Companion Overlay */}
+          <div className="col-span-1 lg:col-span-3 flex flex-col space-y-4">
+            
+            {/* Tab selection bar for right-panel */}
+            <div className="flex bg-gray-900 border border-gray-800 rounded-lg p-1.5 self-start">
+              <button
+                onClick={() => setRightTab('overlay')}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider transition-all flex items-center space-x-1.5",
+                  rightTab === 'overlay' ? "bg-amber-500 text-neutral-950 font-bold" : "text-gray-500 hover:text-gray-300"
+                )}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Macro Overlay</span>
+              </button>
+              <button
+                onClick={() => setRightTab('autopilot')}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider transition-all flex items-center space-x-1.5",
+                  rightTab === 'autopilot' ? "bg-amber-500 text-neutral-950 font-bold" : "text-gray-500 hover:text-gray-300"
+                )}
+              >
+                <Target className="w-3.5 h-3.5" />
+                <span>Autopilot AI</span>
+              </button>
+            </div>
+
+            <div className="flex-1">
+              {rightTab === 'autopilot' ? (
+                <AutopilotControls 
+                  state={aiState} 
+                  onToggle={toggleAI}
+                  onStrategyChange={(s) => setAiState(prev => ({ ...prev, strategy: s }))}
+                />
+              ) : (
+                <CompanionOverlay isConnected={connected} />
+              )}
+            </div>
           </div>
 
         </div>
